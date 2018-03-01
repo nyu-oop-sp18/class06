@@ -11,7 +11,6 @@ object Monoid {
     import MonoidOps._
   
     override def combine(x: (A, B), y: (A, B)) = (x._1 |+| y._1, x._2 |+| y._2)
-  
     override val zero = (mzero[A], mzero[B])
   }
 }
@@ -48,12 +47,9 @@ object MonoidTest extends App {
   
   println(Concat.concat(l))
   
-  import MonoidOps._
+  // Calculate average of the values in a List[Int]
+  val (len, total) = Concat.mapConcat(l)((1, _))
   
-  println((1, 2) |+| (2, 3))
-  
-  val (len, sum) = Concat.mapConcat(l)((1, _))
-  
-  println(s"Average: ${sum.toDouble / len}")
+  println(s"Average: ${total.toDouble / len}")
   
 }

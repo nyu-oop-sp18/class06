@@ -1,5 +1,6 @@
 import scala.collection.mutable._
 
+/*
 class InstrumentedSet[A] extends HashSet[A] {
   private var count: Int = 0
   
@@ -15,12 +16,8 @@ class InstrumentedSet[A] extends HashSet[A] {
     super.++=(xs)
   }
 }
+*/
 
-
-
-
-
-/*
 class InstrumentedSet[A](val v: Set[A]) extends AbstractSet[A] {
   private var count: Int = 0
   
@@ -43,4 +40,3 @@ class InstrumentedSet[A](val v: Set[A]) extends AbstractSet[A] {
 
   override def contains(elem: A): Boolean = v.contains(elem)
 }
-*/

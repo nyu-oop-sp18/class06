@@ -7,13 +7,14 @@ case class Person (
     name: String,
     address: Address)
 
+abstract class PersonRole(val person: Person)
 
 // For payroll subsystem
-class Agent(name: String, address: Address) extends Person(name, address) {
+class Agent(p: Person) extends PersonRole(p) {
   // ...
 }
 
 // For ticketing subsystem
-class Passenger(name: String, address: Address) extends Person(name, address) {
+class Passenger(p: Person) extends PersonRole(p) {
   // ...
 }
