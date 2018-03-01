@@ -22,7 +22,8 @@ object Sorting extends App {
     }
   }
   
-  
+  /*
+  // The following is already declared in the Scala API
   trait Ordered[A] {
     def compare(that: A): Int
     def <(that: A): Boolean = compare(that) < 0
@@ -34,6 +35,7 @@ object Sorting extends App {
   implicit def IntToOrdered(v: Int): Ordered[Int] = new Ordered[Int] {
     def compare(that: Int) = v - that
   }
+  */
   
   val xs = List(1, 5, -2, 12)
 
