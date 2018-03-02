@@ -471,8 +471,8 @@ implicit val offset = 1.0
 ```
 
 In the scope where the implicit value has been declared, we can now
-call `adjust` without providing the argument to its implicit `offset`
-parameter explicitly:
+call `adjust` without providing the argument to its implicit 
+parameter `o` explicitly:
 
 ```scala
 adjust(3.0)
