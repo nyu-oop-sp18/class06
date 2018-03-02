@@ -903,8 +903,8 @@ that the argument `as` is a `List[A]`, and likewise for
 `foldLeft` method would do. 
 
 The class hierarchy of Scala's collection API provides the trait
-`TraversableOnce[A]` which describe objects that contain collections
-of `A` objects and that can be traversed at least once. This trait
+`TraversableOnce[A]` which describes collections
+of `A` objects that can be traversed at least once. This trait
 declares the `foldLeft` method. All of the concrete collection data
 structures including `List[A]` are subtypes of `TraversableOnce[A]`.
 
