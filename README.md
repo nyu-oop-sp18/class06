@@ -306,7 +306,7 @@ notation is just syntactic sugar for a method call `x.<(y)`. If we want to
 generalize the algorithm to work over some generic type  `A`, we must
 ensure that there is an appropriate method
 
-```
+```scala
 def <(that: A): Boolean
 ```
 
@@ -372,7 +372,7 @@ The problem is that `Int` is a predefined type that does not extend
 `Ordered[A]`. So the upper bound constraint on the type parameter `A`
 of `mergeSort` is not satisfied by `Int`.
 
-One common solution to this type incompatibilities is to write a conversion
+One common solution to such type incompatibilities is to write a conversion
 function that takes an `Int` and converts it to an `Ordered[Int]` by
 wrapping it in an object that defines the `compare` method for `Int`
 values appropriately. Here is one implementation of such a conversion
@@ -430,13 +430,13 @@ interface of a library you have to satisfy conflicting demands. On one
 hand, you want to make the interface as flexible as possible, allowing
 clients to modify the behavior of the library without changing its
 implementation. On the other hand, the interface should be as simple
-as possible and not have thousand of "*knobs*" that clients have to
+as possible and not have thousands of "*knobs*" that clients have to
 set each time they use the library.
 
 Scala solves this problem with so-called *implicit parameters* to
 methods. As an example, suppose we are implementing code for a
 geometry application that provides a method `adjust`, which adjusts a
-coordinate of a point by a given offset:
+coordinate `c` of a point by a given offset `o`:
 
 ```scala
 def adjust(c: Double)(o: Double) = c + o
@@ -447,15 +447,15 @@ adjust(3.0)(offset)
 res1: Double = 4.0
 ```
 
-Suppose we write code that makes many calls to adjust within the same
+Suppose we write code that makes many calls to `adjust` within the same
 scope using the same offset value. Ideally, we would like to use
 `adjust` in a way that does not require us to provide the offset
 explicitly in each call in that scope, while still retaining the
 flexibility of using `adjust` with other offset values in other parts
 of our program. 
 
-Scala allows us to declare the final parameter list of a method as
-implicit parameters:
+To solve this kind of problem, Scala allows us to declare the final
+parameter list of a method as implicit parameters:
 
 ```scala
 def adjust(c: Double)(implicit o: Double) = c + o
@@ -481,7 +481,7 @@ res1: Double = 4.0
 
 In general, whenever the implicit parameter list of a method is
 omitted in a call to the method, the compiler will search for implicit
-values in the scope of the call whose static type match the static
+values in the scope of the call whose static types match the static
 types of the implicit parameters. 
 
 In our example, we call `adjust(3.0)` and the compiler thus searches
@@ -506,9 +506,9 @@ def adjust(c: Double)(implicit o1: Double, o2: Double) = c + o1 + o2
 ```
 
 then a call `adjust(1.0)` in the context of the implicitly declared
-`val offset` will always expand to `adjust(1.0)(offset, offset)`. That is
+`val offset` will always expand to `adjust(1.0)(offset, offset)`. That is,
 implicit parameters of the same type will always be resolved to the
-same implicit argument value in a given scope.
+same implicit argument value in any given scope.
 
 Note that the resolution of implicit arguments happens at compile
 time. That is, the compiler statically determines which value to
@@ -548,18 +548,22 @@ Note that we made two additional changes in the code:
 The second point is important. Implicit values that are functions from
 one type to another `f: A => B` are treated as implicit type
 conversion functions by the compiler. That is, whenever the compiler
-finds an expression of static type `A` in the scope of such an
-implicit conversion function, and the context of that expression
-expects a value of static type `B` (or one of its supertypes), then
-the compiler automatically inserts a call to the conversion function
-`f` to "*bridge the gap*".
+finds an expression of static type `A` (or one of `A`'s subtypes) in
+the scope of such an implicit conversion function, and the context of
+that expression expects a value of static type `B` (or one of `B`'s
+supertypes), and `A` is not a subtype of `B`, then the compiler
+automatically inserts a call to the conversion function `f` to
+"*bridge the gap*".
 
 In our example, in `x < y` the expression `x` is of type `A`. However,
 the context expects an expression of type `Ordered[A]` since we call
-the method `<` on `x` and `Ordered[A]` provides such a method. Since
-the implicit conversion function `f: A => Ordered[A]` is in scope, the
-compiler automatically inserts the call to `f` yielding the expression
-`f(x) < y` as in our original code.
+the method `<` on `x` and `Ordered[A]` provides such a method. `A` and
+`Ordered[A]` may not be related by subtyping. Hence, without a
+conversion between the types we would have a static type
+error. However, since the implicit conversion function `f: A =>
+Ordered[A]` is in scope, the compiler automatically inserts the call
+to `f` yielding the expression `f(x) < y` as in our original code. The
+resulting code is then well typed.
 
 There are three important rules to remember when using implicit type
 conversions:
@@ -571,20 +575,20 @@ conversions:
   in scope directly as a *single identifier* such as the function `f`
   in our example. That is, conversion functions that are methods of
   objects referenced by an identifier in scope are not considered. For
-  instance if we have an identifier `x` of type `A` where `A` is a
-  class defining an implicit conversion function `f`, then `x.f` will
-  not be considered as a candidate conversion in the current
-  scope. The only exception to this are the companion objects of the
-  source and target type of the required conversion. For instance, if
-  the compiler searches for an implicit conversion function of type `A
-  => B` and the companion object of `A` has a method of this type,
-  then this method will be used for the conversion.
+  instance, if we have an identifier `x` referencing an object with an
+  implicit conversion function `f`, then `x.f` will not be considered
+  as a candidate conversion in the current scope. The only exception
+  to this are the companion objects of the source and target type of
+  the required conversion. For instance, if the compiler searches for
+  an implicit conversion function of type `A => B` and the companion
+  object of `A` has a method of this type, then this method will be
+  used for the conversion.
   
-* The compiler uses at most one implicit conversion function to bridge
-  the gap between the types `A` and `B`. For instance, if there are
-  implicit conversion functions `f1: A => C` and `f2: C => B` in
-  scope, the compiler will not insert a chain of calls to `f1`
-  followed by `f2` to bridge the gap between types `A` and `B`.
+* The compiler uses at most one implicit conversion function at a
+  time. For instance, if there are implicit conversion functions `f1:
+  A => C` and `f2: C => B` in scope, the compiler will not insert a
+  chain of calls to `f1` followed by `f2` to bridge the gap between
+  types `A` and `B`.
 
 Using our new implementation of `mergeSort`, we can now sort `Int`
 values without providing the conversion function explicitly in the
@@ -638,9 +642,9 @@ the Scala API.
 
 ### View Bounds
 
-Note that in our implementation of `mergeSort` we declare the implicit
+In our implementation of `mergeSort` we declare the implicit
 parameter `f: A => Ordered[A]` for the type conversion, but we never
-actually use `f` explicitly in the body of the `mergeSort`:
+actually use `f` explicitly in the body of `mergeSort`:
 
 ```scala
 def mergeSort[A](xs: List[A])(implicit f: A => Ordered[A]): List[A] = {
@@ -651,11 +655,13 @@ def mergeSort[A](xs: List[A])(implicit f: A => Ordered[A]): List[A] = {
 }
 ```
 
-The compiler automatically inserts the uses of `f` whenever they are
-needed (the conversion of `x` in the comparison and the recursive
-calls). For these cases, Scala provides a more compact syntax that
-allows us to declare the implicit conversion function by expressing a
-constraint on the generic type parameter `A`:
+The compiler automatically inserts `f` whenever it is needed (the
+conversion of `x` in the comparison and the recursive calls). For
+these cases where an implicit conversion function is declared as a
+parameter but never used explicitly in the body of a method or class,
+Scala provides a more compact syntax that allows us to declare the
+implicit conversion function by expressing a constraint on the generic
+type parameter `A`:
 
 ```scala
 def mergeSort[A <% Ordered[A]](xs: List[A]): List[A] = {
@@ -674,12 +680,12 @@ to the upper bound constraint `A <: Ordered[A]` in our original
 implementation. However, an upper bound expresses the stronger
 constraint that `A` is a subtype of `Ordered[A]`, which means that `A`
 values can be used directly as values of type `Ordered[A]` without the
-need for a call to a conversion function (that e.g. wraps the `A`
+need for a call to a conversion function (which e.g. wraps the `A`
 value inside an `Ordered[A]` object).
 
-Technically, the view bound `A <% Ordered[A]` is just syntactic sugar
-for the declaration of an implicit parameter of type `A => Ordered[A]`
-that provides the conversion function.
+The view bound `A <% Ordered[A]` is just syntactic sugar for the
+declaration of an implicit parameter of type `A => Ordered[A]` that
+provides the conversion function.
 
 Implicit conversions are a powerful mechanism for enriching existing
 types with additional methods without modifying the implementation of
@@ -701,12 +707,13 @@ scalar value `lambda` of type `A` so that you could just write this as
 
 ## Type Classes
 
-We have seen that by wrapping objects of generic types `A` in other
-objects `C[A]` that provide additional functionality on the values of
-type `A`, we can write more flexible generic code. By combining this
-approach with implicit type conversions `A => C[A]`, the boiler-plate
-code for wrapping `A` objects in `C[A]` objects can be hidden,
-providing the illusion that we directly operate on the `A` objects.
+We have seen how to we can write more flexible generic code by
+wrapping objects of generic types `A` in other objects `C[A]` that
+provide additional functionality on the values of type `A`. By
+combining this approach with implicit type conversions `A => C[A]`,
+the boiler-plate code for wrapping `A` objects in `C[A]` objects can
+be hidden, giving us the illusion that we directly operate on the `A`
+objects.
 
 Rather than wrapping `A` objects in other objects that implement the
 new functionality, an alternative approach is to bundle the additional
@@ -772,7 +779,7 @@ conditions hold:
 1. `zero` is the left and right neutral for `|+|`, i.e. for all `a:
    A`: `zero |+| a == a |+| zero == a`
 
-Examples of monoids are abound:
+Examples of monoids abound:
 
 * Integers `Int` with addition `+` and neutral element `0`
 
@@ -800,7 +807,7 @@ with the monoid operation `|+|`:
 
 ```a1 |+| a2 |+| a3 |+| ... |+| an```
 
-then we exploit the fact that `|+|` is associative. Namely,
+then we can exploit the fact that `|+|` is associative. Namely,
 associativity allows us to split the work into chunks of subsequences
 of the input values that we can combine in parallel and then
 recursively combine the intermediate results:
@@ -898,9 +905,9 @@ that the argument `as` is a `List[A]`, and likewise for
 
 The class hierarchy of Scala's collection API provides the trait
 `TraversableOnce[A]` which describe objects that contain collections
-of `A` objects and can be traversed at least once. This trait declares
-the `foldLeft` method. All of the concrete collection data structures
-including `List[A]` are subtypes of `TraversableOnce[A]`.
+of `A` objects and that can be traversed at least once. This trait
+declares the `foldLeft` method. All of the concrete collection data
+structures including `List[A]` are subtypes of `TraversableOnce[A]`.
 
 Thus, we can make our implementation more generic by parameterizing
 over the type of the traversable data structure whose elements we
@@ -917,22 +924,24 @@ object Concat {
 ```
 
 Here, the constraint `C[T] <: TraversableOnce[T]` expresses that
-`concat` and `mapConcat` parameterize over a type constructor `C` that is
-parametric in some type parameter `T` such that `C[T]` is a subtype of
-`TraversableOnce[T]`. That is, the type constructor `C` is the generic
-collection type and the type parameter `T` is the element type of that
-collection type.
+`concat` and `mapConcat` parameterize over a type constructor `C` that
+is parametric in some type parameter `T` such that `C[T]` is a subtype
+of `TraversableOnce[T]`. That is, the type constructor `C` is the
+generic collection type and the type parameter `T` is the element type
+of that collection type. This is an example of a so-called
+*higher-kinded* generic method. We will look at higher-kinded types in
+more detail later.
 
-Now we can also use the concatenation methods to concatenate
-collections other than lists, including sequences `Seq`, sets `Set`,
-maps `Maps`, etc.
+With this generalization, we can now also use the concatenation
+methods to concatenate collections other than lists, including
+sequences `Seq`, sets `Set`, maps `Maps`, etc.
 
 Next, one annoyance in the implementation of the two concatenation
 methods is that we have to refer to the type class object `m` to
-access the monoid operations such as in `m.combine(_, _)`. It would be
-nicer is we could write this expression using infix notation such as
-`_ |+| _` where |+| now stands for the `combine` operation of the
-monoid.
+access the monoid operations such as in `m.combine(_, _)`. Wouldn't it
+be nice if we could write this expression using infix notation such as
+`_ |+| _` where `|+|` now stands for the `combine` operation of the
+monoid?
 
 We can do this by using the type class `Monoid[A]` in combination with
 wrapper objects that enrich the type `A` with the `|+|` infix
@@ -950,7 +959,7 @@ class MonoidOps[A](v: A)(implicit m: Monoid[A]) {
 ```
 
 We also add a companion object for `MonoidOps` that declares an
-implicit conversion function `toMonoidOps` that converts objects of
+implicit conversion function `toMonoidOps` to convert objects of
 type `A` to type `MonoidOps[A]`, provided there exists an implicit
 `Monoid[A]` in scope:
 
@@ -1019,11 +1028,11 @@ requirement about the existence of the implicit conversion function in
 the caller's scope. In this case, we can't use a view bound, but Scala
 provides a similar short-hand notation to express the existence of
 implicit type class objects such as `m: Monoid[A]` for a given type
-`A`. We can do this by using a so-called *context bound*. A context
-bound takes the form `A: C` and expresses that for generic type
+`A`. This notation is referred to as a *context bound*. A context
+bound takes the form `A: C` and expresses that for the generic type
 parameter `A` there exists an implicit object of type `C[A]` in the
 caller's scope and this object will be passed as implicit argument to
-the generic method (or class).
+the generic method (or class) that is parameterized by `A`.
 
 Here is how we can use a context bound to simplify our implementation
 of `Concat`:
@@ -1050,7 +1059,7 @@ Similar to how we defined generic implicit conversion functions for
 the `Ordered` trait, we can define generic methods that construct
 monoids for more complex types from implicit monoids of simpler
 types. For example, if we have two monoids `Monoid[A]` and `Monoid[B]`
-then we can build the product monoid `Monoid[(A, B)]` on pairs of
+then we can build the monoid product `Monoid[(A, B)]` on pairs of
 values `(A, B)` by lifting all operations component-wise.
 
 A good place for such implicit factory methods is the companion object
@@ -1059,11 +1068,11 @@ implicit values of some type `T` it will automatically import
 the declarations in the companion object of `T` in the scope of the
 search.
 
-Here is the implementation of our implicit product monoid factory method:
+Here is the implementation of our implicit monoid product factory method:
 
 ```scala
 object Monoid {
-  implicit def productMonoid[A: Monoid, B: Monoid] = new Monoid[(A, B)] {
+  implicit def product[A: Monoid, B: Monoid] = new Monoid[(A, B)] {
     import MonoidOps._
   
     override def combine(x: (A, B), y: (A, B)) = (x._1 |+| y._1, x._2 |+| y._2)
@@ -1073,12 +1082,12 @@ object Monoid {
 ```
 
 We can now use this implementation e.g. to calculate the average value
-of all values stored in a list. The idea is to calculate the average
-value, we need to compute two things: the number of values (i.e. the
-length of the list), and the total sum of all values in the
-list. Using our implicit product monoid, we can calculate these two
-values simultaneously with a single pass over the list using the
-method `Concat.mapConcat`:
+of all values stored in a list. To calculate the average value, we
+need to compute two things: the number of values in the list (i.e. its
+length), and the total sum of all those values. Using our implicit
+monoid product, we can calculate these two values simultaneously and
+quite elegantly with a single pass over the list using the method
+`Concat.mapConcat`:
 
 ```scala
 val l = List(1, 2, 3)
@@ -1089,8 +1098,13 @@ val average = total.toDouble / len
 ```
 
 It is instructive to manually expand the call `Concat.mapConcat(l)((1, _))`
-they way the compiler will do it automatically:
+they way the compiler will do it automatically for us:
 
 ```scala
-Concat.mapConcat[(Int,Int), Int, List](l)((x: Int) => (1,x))(Monoid.toProductMonoid[Int, Int](intMonoid, intMonoid))
+Concat.mapConcat[(Int,Int), Int, List](l)((x: Int) => (1,x))(Monoid.product[Int, Int](intMonoid, intMonoid))
 ```
+
+This demonstrates the true power of implicit parameters in simplifying
+our code in the cases where we need to compose operations on simple
+objects to operations on complex objects in order to make use of
+simple but powerful generic library functions.

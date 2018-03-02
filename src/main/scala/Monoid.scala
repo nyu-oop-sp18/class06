@@ -7,7 +7,7 @@ trait Monoid[A] {
 }
 
 object Monoid {
-  implicit def productMonoid[A: Monoid, B: Monoid] = new Monoid[(A, B)] {
+  implicit def product[A: Monoid, B: Monoid] = new Monoid[(A, B)] {
     import MonoidOps._
   
     override def combine(x: (A, B), y: (A, B)) = (x._1 |+| y._1, x._2 |+| y._2)
