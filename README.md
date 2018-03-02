@@ -1005,7 +1005,7 @@ object Concat {
 ### Context Bounds
 
 If we look again at the code for object `Concat` we observe that the
-implicit value `m` passed to the functions `concat` and `mapConcat`
+implicit parameters `m` passed to the functions `concat` and `mapConcat`
 are never used explicitly in the body of these functions:
 
 ```scala
@@ -1103,7 +1103,7 @@ they way the compiler will do it automatically for us:
 Concat.mapConcat[(Int,Int), Int, List](l)((x: Int) => (1,x))(Monoid.product[Int, Int](intMonoid, intMonoid))
 ```
 
-This demonstrates the true power of implicit parameters in simplifying
+This demonstrates the true power of implicit parameters for simplifying
 our code in the cases where we need to compose operations on simple
 objects to operations on complex objects in order to make use of
 simple but powerful generic library functions.
