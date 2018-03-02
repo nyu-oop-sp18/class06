@@ -817,7 +817,7 @@ recursively combine the intermediate results:
      |+|       |+|  ...  |+|
       \__    __/         /
          \  /           /
-         |+    ...     /
+         |+|   ...     /
           \____   ____/
                \ /
                |+|
