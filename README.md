@@ -700,20 +700,19 @@ If one carefully combines implicit conversion with operator
 overloading, then this technique also enables the embedding of
 domain-specific languages directly in the Scala language. For
 instance, suppose you are writing a library for operations of sparse
-matrices over a field `A`. Think about how could you use implicit
+matrices over a field `A`. Think about how you could use implicit
 conversions to implement the multiplication of a matrix `m` by a
 scalar value `lambda` of type `A` so that you could just write this as
 `lambda * m` in your Scala program.
 
 ## Type Classes
 
-We have seen how to we can write more flexible generic code by
-wrapping objects of generic types `A` in other objects `C[A]` that
-provide additional functionality on the values of type `A`. By
-combining this approach with implicit type conversions `A => C[A]`,
-the boiler-plate code for wrapping `A` objects in `C[A]` objects can
-be hidden, giving us the illusion that we directly operate on the `A`
-objects.
+We have seen how we can write more flexible generic code by wrapping
+objects of generic types `A` in other objects `C[A]` that provide
+additional functionality on the values of type `A`. By combining this
+approach with implicit type conversions `A => C[A]`, the boiler-plate
+code for wrapping `A` objects in `C[A]` objects can be hidden, giving
+us the illusion that we directly operate on the `A` objects.
 
 Rather than wrapping `A` objects in other objects that implement the
 new functionality, an alternative approach is to bundle the additional
