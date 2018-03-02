@@ -581,8 +581,8 @@ conversions:
   to this are the companion objects of the source and target type of
   the required conversion. For instance, if the compiler searches for
   an implicit conversion function of type `A => B` and the companion
-  object of `A` has a method of this type, then this method will be
-  used for the conversion.
+  object of `A` has an implicit method of this type, then this method
+  will be used for the conversion.
   
 * The compiler uses at most one implicit conversion function at a
   time. For instance, if there are implicit conversion functions `f1:
