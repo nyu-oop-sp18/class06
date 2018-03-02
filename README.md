@@ -795,9 +795,9 @@ Examples of monoids abound:
 
 * ...
 
-Even though monoids are very simple structures, they play an important
-role in computing. If we are given a sequence of values of the monoids
-type `A`:
+Even though monoids are very simple algebraic structures, they play an
+important role in computing. If we are given a sequence of values of
+the monoid's type `A`:
 
 ```a1, a2, a3, ..., an```
 
