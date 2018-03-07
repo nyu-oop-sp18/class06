@@ -687,6 +687,13 @@ The view bound `A <% Ordered[A]` is just syntactic sugar for the
 declaration of an implicit parameter of type `A => Ordered[A]` that
 provides the conversion function.
 
+**Deprecation alert:** There is discussion about deprecating view
+bounds in the Scala language. So this feature might disappear in
+future Scala releases. I therefore recommend that you use the expanded
+syntax with implicit conversion function parameters instead of view
+bounds to avoid potential compatibility issues with future versions of
+the Scala compiler.
+
 Implicit conversions are a powerful mechanism for enriching existing
 types with additional methods without modifying the implementation of
 those types. This is particularly useful for types that are provided
