@@ -743,9 +743,9 @@ trait Ordering[A] {
 
 This trait is similar to `Ordered[A]`. However, unlike `Ordered[A]`
 which can be thought of as an `A` object extended with methods related
-to the ordering on type `A`, an instance of `Ordered[A]` is simply a
+to the ordering on type `A`, an instance of `Ordering[A]` is simply a
 container for the ordering-related operations but not a container for an
-`A` instance itself. Hence, all the operations on `Ordered[A]` take
+`A` instance itself. Hence, all the operations on `Ordering[A]` take
 two parameters of type `A` instead of just one.
 
 We refer to such a container class for related operations on a type as
