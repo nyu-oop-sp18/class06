@@ -622,7 +622,7 @@ ordered pairs:
 implicit def toOrderedPair[A, B](implicit fa: A => Ordered[A], fb: B => Ordered[B]) =
   new Ordered[(A, B)] {
     override def compare(x: (A, B), y: (A, B)) = {
-      val c1 = x._1.compare(y._1) < 0
+      val c1 = x._1.compare(y._1)
       if (c1 != 0) c1 else y._1.compare(y._2)
     }
   }
